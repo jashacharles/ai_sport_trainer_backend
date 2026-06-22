@@ -22,22 +22,14 @@ model Client {
 }
 
 model Project {
-  id        String    @id @default(uuid())
-  projectName     String
-  projectGoal     String
-  sport     Sport  @relation(fields:[sportId], references:[id])
-  sportId         String
-  clientId  String 
-  client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  sessions  Session[]
-  createdAt DateTime  @default(now())
-}
-
-model Sport {
-  id  String  @id @default(uuid())
-  sportName String
-  projects  Project[] 
-
+  id          String    @id @default(uuid())
+  projectName String
+  projectGoal String
+  sportType   String
+  clientId    String
+  client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  sessions    Session[]
+  createdAt   DateTime  @default(now())
 }
 
 model Session {
