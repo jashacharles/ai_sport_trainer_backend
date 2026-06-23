@@ -1,11 +1,37 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { MinioService } from '../minio/minio.service';
 import { llmgateway } from '@llmgateway/ai-sdk-provider';
 import { generateText } from 'ai';
 
 @Injectable()
-export class SessionsService {    // request for object rather than text: content of the input: user goal, session wearable data(should be defined in dto ) ,footage link?, user reflection(short text), user body condition(short text),
+export class SessionsService {
+  constructor(
+    private prisma: PrismaService,
+    private minio: MinioService,
+  ) {}
+
+  async create(createSessionDto: CreateSessionDto) {
+    const session = await this.prisma.session.create({
+      data: {
+        projectId: createSessionDto.projectId,
+        description: createSessionDto.description,
+      },
+    });
+
+    const objectKey = `sessions/${session.id}/video.mp4`;
+    const uploadUrl = await this.minio.getUploadUrl(objectKey);
+
+    await this.prisma.session.update({
+      where: { id: session.id },
+      data: { videoKey: objectKey },
+    });
+
+    return { session, uploadUrl };
+  }
+
   async requestModelInference() {
     const { text } = await generateText({
       model: llmgateway('gemini-3.5-flash'),
@@ -15,7 +41,7 @@ export class SessionsService {    // request for object rather than text: conten
           content: [
             {
               type: 'file',
-              data:'place holder',
+              data: 'place holder',
               mediaType: 'video/mp4',
             },
             {
@@ -30,23 +56,19 @@ export class SessionsService {    // request for object rather than text: conten
     return { text };
   }
 
-  create(createSessionDto: CreateSessionDto) {
-    return 'This action adds a new session';
-  }
-
   findAll() {
-    return `This action returns all sessions`;
+    return this.prisma.session.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} session`;
+  findOne(id: string) {
+    return this.prisma.session.findUnique({ where: { id } });
   }
 
-  update(id: number, updateSessionDto: UpdateSessionDto) {
-    return `This action updates a #${id} session`;
+  update(id: string, updateSessionDto: UpdateSessionDto) {
+    return this.prisma.session.update({ where: { id }, data: updateSessionDto });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} session`;
+  remove(id: string) {
+    return this.prisma.session.delete({ where: { id } });
   }
 }

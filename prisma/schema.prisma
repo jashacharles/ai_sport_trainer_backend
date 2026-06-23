@@ -33,12 +33,12 @@ model Project {
 }
 
 model Session {
-  id        String   @id @default(uuid())
-  notes     String?
-  duration  Int      // duration in minutes
-  projectId String
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  summary   String 
-  recommendation String
+  id             String   @id @default(uuid())
+  description    String
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  videoKey       String?
+  summary        String?
+  recommendation String?
 }
