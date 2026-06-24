@@ -8,7 +8,6 @@ export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(clientId: string, dto: CreateProjectDto) {
-    console.log("Creating project with data:", dto, "for clientId:", clientId);
     return this.prisma.project.create({
       data: {
         projectName: dto.projectName,
@@ -25,15 +24,22 @@ export class ProjectsService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} project`;
+  findOne(id: string) {
+    return this.prisma.project.findUnique({ where: { id } });
   }
 
-  update(id: number, updateProjectDto: UpdateProjectDto) {
-    return `This action updates a #${id} project`;
+  update(id: string, updateProjectDto: UpdateProjectDto) {
+    return this.prisma.project.update({
+      where: { id },
+      data: {
+        projectName: updateProjectDto.projectName,
+        projectGoal: updateProjectDto.goal,
+        sportType: updateProjectDto.sportType,
+      },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} project`;
+  remove(id: string) {
+    return this.prisma.project.delete({ where: { id } });
   }
 }

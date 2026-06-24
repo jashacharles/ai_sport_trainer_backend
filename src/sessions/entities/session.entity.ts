@@ -6,4 +6,5 @@ export class Session {
   projectName: string;
   sportType: string;
   goal: string;
+  description: string;
 }

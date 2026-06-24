@@ -13,47 +13,19 @@ export class SessionsService {
     private minio: MinioService,
   ) {}
 
-  async create(createSessionDto: CreateSessionDto) {
+  async requestUploadUrl(userId: string, createSessionDto: CreateSessionDto) {
     const session = await this.prisma.session.create({
       data: {
+        userId,
         projectId: createSessionDto.projectId,
         description: createSessionDto.description,
       },
     });
 
-    const objectKey = `sessions/${session.id}/video.mp4`;
+    const objectKey = `${userId}/${createSessionDto.projectId}/${session.id}/video.mp4`;
     const uploadUrl = await this.minio.getUploadUrl(objectKey);
 
-    await this.prisma.session.update({
-      where: { id: session.id },
-      data: { videoKey: objectKey },
-    });
-
     return { session, uploadUrl };
-  }
-
-  async requestModelInference() {
-    const { text } = await generateText({
-      model: llmgateway('gemini-3.5-flash'),
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'file',
-              data: 'place holder',
-              mediaType: 'video/mp4',
-            },
-            {
-              type: 'text',
-              text: 'Analyze the forehand, the goal is to have better speed and just a bit more spin.',
-            },
-          ],
-        },
-      ],
-    });
-
-    return { text };
   }
 
   findAll() {
