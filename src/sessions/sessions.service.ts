@@ -14,9 +14,9 @@ export class SessionsService {
   ) {}
 
   async requestUploadUrl(userId: string, createSessionDto: CreateSessionDto) {
+    console.log('Requesting upload URL for user:', userId, 'with session data:', createSessionDto);
     const session = await this.prisma.session.create({
       data: {
-        userId,
         projectId: createSessionDto.projectId,
         description: createSessionDto.description,
       },
@@ -24,7 +24,7 @@ export class SessionsService {
 
     const objectKey = `${userId}/${createSessionDto.projectId}/${session.id}/video.mp4`;
     const uploadUrl = await this.minio.getUploadUrl(objectKey);
-
+    console.log('Upload URL generated:', uploadUrl);
     return { session, uploadUrl };
   }
 

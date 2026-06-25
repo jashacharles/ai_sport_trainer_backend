@@ -8,9 +8,10 @@ import { SessionsModule } from './sessions/sessions.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { MinioModule } from './minio/minio.module';
+import { SqsModule } from './sqs/sqs.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, MinioModule, UsersModule, ProjectsModule, SessionsModule, AuthModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, MinioModule, SqsModule, UsersModule, ProjectsModule, SessionsModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
